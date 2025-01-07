@@ -10,4 +10,64 @@ services:
     command: >
       sh -c "rabbitmq-plugins enable rabbitmq_shovel rabbitmq_shovel_management
       && rabbitmq-server"
+    networks:
+      - alura
 
+  rabbit1:
+    image: rabbitmq:3.10-management
+    container_name: rabbit1
+    hostname: rabbit1
+    ports:
+      - "8085:15672"
+      - "5673:5672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: alura_secret
+    networks:
+      - alura
+    restart: always
+
+  rabbit2:
+    image: rabbitmq:3.10-management
+    container_name: rabbit2
+    hostname: rabbit2
+    ports:
+      - "8086:15672"
+      - "5674:5672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: alura_secret
+    networks:
+      - alura
+    restart: always
+    command: >
+      sh -c "rabbitmq-server &
+      sleep 10 &&
+      rabbitmqctl stop_app &&
+      rabbitmqctl reset &&
+      rabbitmqctl join_cluster rabbit@rabbit1 &&
+      rabbitmqctl start_app &&
+      tail -f /dev/null"
+
+  rabbit3:
+    image: rabbitmq:3.10-management
+    container_name: rabbit3
+    hostname: rabbit3
+    ports:
+      - "8087:15672"
+      - "5675:5672"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: alura_secret
+    networks:
+      - alura
+    restart: always
+    command: >
+      sh -c "rabbitmq-server &
+      sleep 10 &&
+      rabbitmqctl stop_app &&
+      rabbitmqctl reset &&
+      rabbitmqctl join_cluster rabbit@rabbit1 &&
+      rabbitmqctl start_app &&
+      tail -f /dev/null"
+
+networks:
+  alura:
+    driver: bridge
