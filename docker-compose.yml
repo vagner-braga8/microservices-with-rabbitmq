@@ -22,9 +22,16 @@ services:
       - "5673:5672"
     environment:
       RABBITMQ_ERLANG_COOKIE: alura_secret
+      RABBITMQ_DEFAULT_USER: alura
+      RABBITMQ_DEFAULT_PASS: alura123
     networks:
       - alura
     restart: always
+    command: >
+      sh -c "rabbitmq-server &
+      sleep 10 &&
+      rabbitmqctl set_policy ha-all \"^\" '{\"ha-mode\":\"all\"}' &&
+      tail -f /dev/null"
 
   rabbit2:
     image: rabbitmq:3.10-management
@@ -35,6 +42,8 @@ services:
       - "5674:5672"
     environment:
       RABBITMQ_ERLANG_COOKIE: alura_secret
+      RABBITMQ_DEFAULT_USER: alura
+      RABBITMQ_DEFAULT_PASS: alura123
     networks:
       - alura
     restart: always
@@ -56,6 +65,8 @@ services:
       - "5675:5672"
     environment:
       RABBITMQ_ERLANG_COOKIE: alura_secret
+      RABBITMQ_DEFAULT_USER: alura
+      RABBITMQ_DEFAULT_PASS: alura123
     networks:
       - alura
     restart: always
